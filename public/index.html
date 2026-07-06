@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OptiSize — Smart Image Resizer with OpenCV</title>
+  <!-- Google Fonts: Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background Glows -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo">
+        <i class="fa-solid fa-wand-magic-sparkles logo-icon"></i>
+        <h1>OptiSize</h1>
+      </div>
+      <p class="subtitle">High-fidelity image optimization powered by Node.js & OpenCV</p>
+    </header>
+
+    <!-- Main Card -->
+    <main class="main-card">
+      
+      <!-- Section 1: Upload Screen -->
+      <section id="upload-section" class="screen-section active">
+        <div class="drop-zone" id="drop-zone">
+          <input type="file" id="file-input" accept="image/png, image/jpeg, image/jpg, image/webp" hidden>
+          <div class="drop-zone-content">
+            <div class="upload-icon-wrapper">
+              <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+            </div>
+            <h3>Drag & drop your image here</h3>
+            <p class="support-text">Supports JPG, PNG, and WebP (up to 15MB)</p>
+            <button type="button" class="btn btn-primary" id="browse-btn">
+              <i class="fa-solid fa-images"></i> Browse Files
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Editor Screen -->
+      <section id="editor-section" class="screen-section">
+        <div class="editor-grid">
+          <!-- Left Column: Image Preview -->
+          <div class="preview-panel">
+            <h2 class="panel-title"><i class="fa-regular fa-image"></i> Image Preview</h2>
+            <div class="preview-box">
+              <img id="image-preview" src="" alt="Preview">
+              <div class="resolution-badge" id="original-resolution-badge">0 × 0</div>
+            </div>
+            <div class="file-details">
+              <span id="original-filename">image.png</span>
+              <span class="file-size-badge" id="original-size">0 KB</span>
+            </div>
+          </div>
+
+          <!-- Right Column: Settings & Controls -->
+          <div class="controls-panel">
+            <h2 class="panel-title"><i class="fa-solid fa-sliders"></i> Resize Settings</h2>
+            
+            <!-- Dimension Controls -->
+            <div class="control-group">
+              <label class="control-label">Dimensions</label>
+              <div class="dimension-inputs">
+                <div class="input-field-wrapper">
+                  <span class="input-prefix">W</span>
+                  <input type="number" id="width-input" placeholder="Width" min="1">
+                  <span class="input-suffix">px</span>
+                </div>
+                <div class="aspect-ratio-lock" id="aspect-lock-btn" title="Lock Aspect Ratio">
+                  <i class="fa-solid fa-link lock-icon"></i>
+                </div>
+                <div class="input-field-wrapper">
+                  <span class="input-prefix">H</span>
+                  <input type="number" id="height-input" placeholder="Height" min="1">
+                  <span class="input-suffix">px</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Preset Controls -->
+            <div class="control-group">
+              <label class="control-label">Scale Presets</label>
+              <div class="preset-buttons">
+                <button type="button" class="btn-preset" data-scale="25">25%</button>
+                <button type="button" class="btn-preset" data-scale="50">50%</button>
+                <button type="button" class="btn-preset" data-scale="75">75%</button>
+                <button type="button" class="btn-preset active" data-scale="100">100%</button>
+              </div>
+            </div>
+
+            <!-- Output Formats -->
+            <div class="control-group">
+              <label class="control-label">Output Format</label>
+              <div class="format-options">
+                <label class="format-radio">
+                  <input type="radio" name="format" value="original" checked>
+                  <span class="format-box">Original</span>
+                </label>
+                <label class="format-radio">
+                  <input type="radio" name="format" value="jpeg">
+                  <span class="format-box">JPEG</span>
+                </label>
+                <label class="format-radio">
+                  <input type="radio" name="format" value="png">
+                  <span class="format-box">PNG</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Quality Control (conditional) -->
+            <div class="control-group" id="quality-group">
+              <div class="quality-header">
+                <label class="control-label">Quality</label>
+                <span id="quality-value">90%</span>
+              </div>
+              <input type="range" id="quality-input" min="10" max="100" value="90" class="slider">
+              <div class="slider-labels">
+                <span>Smaller size</span>
+                <span>Best quality</span>
+              </div>
+            </div>
+
+            <!-- Action Button -->
+            <div class="action-wrapper">
+              <button type="button" class="btn btn-accent btn-large" id="resize-btn">
+                <span>Process Image</span>
+                <i class="fa-solid fa-arrow-right"></i>
+              </button>
+              <button type="button" class="btn btn-secondary btn-large" id="cancel-btn">
+                <i class="fa-solid fa-xmark"></i> Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Processing Screen -->
+      <section id="processing-section" class="screen-section">
+        <div class="processing-content">
+          <div class="spinner-container">
+            <div class="loading-ring"></div>
+            <i class="fa-solid fa-wand-magic-sparkles spinner-icon"></i>
+          </div>
+          <h3>Processing Image...</h3>
+          <p>OpenCV is recalculating pixel matrices and applying interpolation filters.</p>
+        </div>
+      </section>
+
+      <!-- Section 4: Result/Download Screen -->
+      <section id="result-section" class="screen-section">
+        <div class="success-header">
+          <div class="success-icon-wrapper">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <h2>Image Resized Successfully!</h2>
+          <p>Your optimized image is ready for download.</p>
+        </div>
+
+        <div class="comparison-container">
+          <!-- Original Stats Card -->
+          <div class="comparison-card">
+            <div class="card-status">Original</div>
+            <div class="image-thumbnail-wrapper">
+              <img id="result-original-img" src="" alt="Original Image">
+            </div>
+            <div class="card-details">
+              <div class="detail-row">
+                <span>Dimensions:</span>
+                <strong id="res-orig-dimensions">1920 × 1080</strong>
+              </div>
+              <div class="detail-row">
+                <span>File Size:</span>
+                <strong id="res-orig-size">1.2 MB</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Arrow Divider -->
+          <div class="comparison-arrow">
+            <i class="fa-solid fa-right-long"></i>
+          </div>
+
+          <!-- Resized Stats Card -->
+          <div class="comparison-card success-border">
+            <div class="card-status status-success">Optimized</div>
+            <div class="image-thumbnail-wrapper">
+              <img id="result-resized-img" src="" alt="Resized Image">
+            </div>
+            <div class="card-details">
+              <div class="detail-row">
+                <span>Dimensions:</span>
+                <strong id="res-new-dimensions">1280 × 720</strong>
+              </div>
+              <div class="detail-row">
+                <span>File Size:</span>
+                <strong id="res-new-size">340 KB</strong>
+              </div>
+              <div class="detail-row saving-row">
+                <span>Reduction:</span>
+                <strong id="res-savings" class="saving-badge">-71%</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="result-actions">
+          <a id="download-link" href="#" class="btn btn-accent btn-large">
+            <i class="fa-solid fa-download"></i> Download Image
+          </a>
+          <button type="button" class="btn btn-secondary btn-large" id="reset-btn">
+            <i class="fa-solid fa-rotate-left"></i> Resize Another Image
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>&copy; 2026 OptiSize Web App. Made with Node.js, Express & OpenCV.</p>
+    </footer>
+  </div>
+</body>
+</html>
