@@ -131,6 +131,13 @@ app.post('/api/resize', (req, res) => {
     return res.status(404).json({ error: 'Original image not found' });
   }
 
+  // Safety check: Prevent server memory exhaustion (OOM) on free cloud tiers
+  if (width > 5000 || height > 5000) {
+    return res.status(400).json({ 
+      error: `Output dimensions (${width}x${height}px) exceed the 5000x5000px limit allowed to prevent server memory exhaustion.` 
+    });
+  }
+
   // Determine output extension and filename
   const baseName = path.basename(filename, path.extname(filename));
   const outputExt = format ? `.${format}` : path.extname(filename);
