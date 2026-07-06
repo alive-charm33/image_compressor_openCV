@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   // DOM Elements
+  const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:3005' : '';
+  console.log('OptiSize initialized. API Base URL:', API_BASE || '(relative)');
+  
   const uploadSection = document.getElementById('upload-section');
   const editorSection = document.getElementById('editor-section');
   const processingSection = document.getElementById('processing-section');
@@ -109,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Upload Logic
   async function handleUpload(file) {
+    console.log('File selected for upload:', file.name, 'Mime type:', file.type, 'Size:', file.size, 'bytes');
     // Validate file type
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!validTypes.includes(file.type)) {
@@ -119,10 +123,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const formData = new FormData();
     formData.append('image', file);
 
+    console.log('Transitioning to processing screen...');
     showScreen(processingSection);
 
     try {
-      const response = await fetch('/api/upload', {
+      console.log('Sending upload fetch request...');
+      const response = await fetch(`${API_BASE}/api/upload`, {
         method: 'POST',
         body: formData
       });
@@ -133,6 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const data = await response.json();
+      console.log('Upload response successfully parsed:', data);
       
       // Store state
       currentFile = {
@@ -146,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       // Update UI preview
-      imagePreview.src = data.url;
+      imagePreview.src = API_BASE + data.url;
       originalResolutionBadge.textContent = `${data.width} × ${data.height}`;
       originalFilenameSpan.textContent = data.originalName;
       originalSizeSpan.textContent = formatBytes(data.size);
@@ -305,10 +312,10 @@ document.addEventListener('DOMContentLoaded', () => {
       quality
     };
 
-    showScreen(processingSection);
+    console.log('Sending resize fetch request...', payload);
 
     try {
-      const response = await fetch('/api/resize', {
+      const response = await fetch(`${API_BASE}/api/resize`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -322,10 +329,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const data = await response.json();
+      console.log('Resize response successfully parsed:', data);
 
       // Update comparison screens
-      resultOriginalImg.src = currentFile.url;
-      resultResizedImg.src = data.url;
+      resultOriginalImg.src = API_BASE + currentFile.url;
+      resultResizedImg.src = API_BASE + data.url;
 
       resOrigDimensions.textContent = `${currentFile.width} × ${currentFile.height} px`;
       resOrigSize.textContent = formatBytes(currentFile.size);
@@ -347,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // Configure download route
-      downloadLink.href = `/download/${data.filename}`;
+      downloadLink.href = `${API_BASE}/download/${data.filename}`;
       
       showScreen(resultSection);
 
