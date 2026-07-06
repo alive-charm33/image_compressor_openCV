@@ -8,6 +8,9 @@ const { spawn, exec } = require('child_process');
 const app = express();
 const PORT = process.env.PORT || 3005;
 
+// Dynamic python executable command (python3 on Linux/macOS, python on Windows)
+const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
+
 app.use(cors());
 app.use(express.json());
 
@@ -66,7 +69,7 @@ function getImageDimensions(filePath) {
   return new Promise((resolve, reject) => {
     // Escape path for windows shell if needed
     const escapedPath = filePath.replace(/\\/g, '\\\\');
-    const cmd = `python -c "import cv2; img=cv2.imread(r'${escapedPath}'); print(f'{img.shape[1]},{img.shape[0]}')"`;
+    const cmd = `${pythonCmd} -c "import cv2; img=cv2.imread(r'${escapedPath}'); print(f'{img.shape[1]},{img.shape[0]}')"`;
     exec(cmd, (error, stdout, stderr) => {
       if (error) {
         return reject(error);
@@ -135,7 +138,7 @@ app.post('/api/resize', (req, res) => {
   const outputPath = path.join(OUTPUTS_DIR, outputFilename);
 
   // Spawn Python script to do the work
-  const pythonProcess = spawn('python', [
+  const pythonProcess = spawn(pythonCmd, [
     path.join(__dirname, 'resize.py'),
     inputPath,
     outputPath,
