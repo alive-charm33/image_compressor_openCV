@@ -34,7 +34,7 @@
       <!-- Section 1: Upload Screen -->
       <section id="upload-section" class="screen-section active">
         <div class="drop-zone" id="drop-zone">
-          <input type="file" id="file-input" accept="image/png, image/jpeg, image/jpg, image/webp" hidden>
+          <input type="file" id="file-input" accept="image/png, image/jpeg, image/jpg, image/webp">
           <div class="drop-zone-content">
             <div class="upload-icon-wrapper">
               <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
@@ -90,12 +90,21 @@
 
             <!-- Preset Controls -->
             <div class="control-group">
-              <label class="control-label">Scale Presets</label>
-              <div class="preset-buttons">
-                <button type="button" class="btn-preset" data-scale="25">25%</button>
-                <button type="button" class="btn-preset" data-scale="50">50%</button>
-                <button type="button" class="btn-preset" data-scale="75">75%</button>
-                <button type="button" class="btn-preset active" data-scale="100">100%</button>
+              <label class="control-label">Scale Presets / Custom Scale</label>
+              <div class="preset-controls-wrapper">
+                <div class="preset-buttons">
+                  <button type="button" class="btn-preset" data-scale="25">25%</button>
+                  <button type="button" class="btn-preset" data-scale="50">50%</button>
+                  <button type="button" class="btn-preset" data-scale="75">75%</button>
+                  <button type="button" class="btn-preset active" data-scale="100">100%</button>
+                </div>
+                <div class="custom-scale-wrapper">
+                  <span class="custom-scale-label">Or Custom Scale:</span>
+                  <div class="input-field-wrapper custom-scale-input">
+                    <input type="number" id="custom-scale-input" placeholder="e.g. 60" min="1" max="1000">
+                    <span class="input-suffix">%</span>
+                  </div>
+                </div>
               </div>
             </div>
 

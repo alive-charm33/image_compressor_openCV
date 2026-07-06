@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const qualityGroup = document.getElementById('quality-group');
   const qualityInput = document.getElementById('quality-input');
   const qualityValue = document.getElementById('quality-value');
+  const customScaleInput = document.getElementById('custom-scale-input');
 
   const resizeBtn = document.getElementById('resize-btn');
   const cancelBtn = document.getElementById('cancel-btn');
@@ -73,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- UPLOAD HANDLERS ---
-  browseBtn.addEventListener('click', () => fileInput.click());
+  // Note: Entire drop-zone is covered by fileInput overlay, so click is handled natively.
 
   fileInput.addEventListener('change', (e) => {
     if (e.target.files.length > 0) {
@@ -157,6 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Reset preset buttons to 100%
       presetButtons.forEach(btn => btn.classList.remove('active'));
       document.querySelector('[data-scale="100"]').classList.add('active');
+      customScaleInput.value = '';
       activePreset = 100;
 
       showScreen(editorSection);
@@ -205,6 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function clearPresets() {
     presetButtons.forEach(btn => btn.classList.remove('active'));
+    customScaleInput.value = '';
     activePreset = null;
   }
 
@@ -213,6 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => {
       presetButtons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      customScaleInput.value = '';
       
       const scale = parseInt(btn.dataset.scale, 10);
       activePreset = scale;
@@ -222,6 +226,22 @@ document.addEventListener('DOMContentLoaded', () => {
         heightInput.value = Math.round(currentFile.height * (scale / 100));
       }
     });
+  });
+
+  // Custom scale manual typing handler
+  customScaleInput.addEventListener('input', () => {
+    const scale = parseInt(customScaleInput.value, 10);
+    if (!isNaN(scale) && scale > 0) {
+      presetButtons.forEach(b => b.classList.remove('active'));
+      activePreset = scale;
+
+      if (currentFile.width && currentFile.height) {
+        widthInput.value = Math.round(currentFile.width * (scale / 100));
+        heightInput.value = Math.round(currentFile.height * (scale / 100));
+      }
+    } else {
+      activePreset = null;
+    }
   });
 
   // Format Selection Visibility
@@ -252,12 +272,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Cancel sizing
   cancelBtn.addEventListener('click', () => {
     fileInput.value = '';
+    customScaleInput.value = '';
     showScreen(uploadSection);
   });
 
   // Reset resizer
   resetBtn.addEventListener('click', () => {
     fileInput.value = '';
+    customScaleInput.value = '';
     showScreen(uploadSection);
   });
 
