@@ -32,9 +32,10 @@ def resize_image(input_path, output_path, width, height, quality=90):
         if ext in ['.jpg', '.jpeg']:
             params = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
         elif ext == '.png':
-            # cv2.IMWRITE_PNG_COMPRESSION ranges from 0 (no compression) to 9 (max compression)
-            # Higher quality (e.g. 100) = lower compression (0).
-            png_compression = int((100 - quality) * 9 / 100)
+            # Map quality (10-100) to PNG compression level (1-9)
+            # Higher quality slider value = higher compression = smaller file.
+            # Default quality of 90 maps to 8 (excellent compression).
+            png_compression = max(1, min(9, int(quality * 9 / 100)))
             params = [int(cv2.IMWRITE_PNG_COMPRESSION), png_compression]
         
         cv2.imwrite(output_path, resized, params)

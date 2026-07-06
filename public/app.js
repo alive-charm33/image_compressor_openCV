@@ -261,8 +261,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (activeFormat === 'jpeg' || activeFormat === 'png') {
       qualityGroup.classList.add('visible');
       if (activeFormat === 'png') {
-        document.querySelector('#quality-group .slider-labels span:first-child').textContent = 'Larger file (Slow)';
-        document.querySelector('#quality-group .slider-labels span:last-child').textContent = 'Smallest file (Fast)';
+        document.querySelector('#quality-group .slider-labels span:first-child').textContent = 'Fast (Larger size)';
+        document.querySelector('#quality-group .slider-labels span:last-child').textContent = 'Smallest size';
       } else {
         document.querySelector('#quality-group .slider-labels span:first-child').textContent = 'Smaller size';
         document.querySelector('#quality-group .slider-labels span:last-child').textContent = 'Best quality';
